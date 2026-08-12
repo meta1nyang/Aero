@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Frutiger Aero Music Player</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans KR", sans-serif;
+      background: #e8f4f8;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .frutiger-wrap {
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(160deg, #b8e6f0 0%, #d4f8d4 35%, #a8e0ff 70%, #c8f0c8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* Background bubbles */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0.1) 60%, rgba(200,240,255,0.3));
+      box-shadow: inset -2px -2px 6px rgba(255,255,255,0.6), inset 2px 2px 6px rgba(0,150,200,0.1), 0 4px 12px rgba(0,100,150,0.08);
+      pointer-events: none;
+      animation: float 6s ease-in-out infinite;
+    }
+    .bubble-1 { width: 80px; height: 80px; top: 10%; left: 8%; animation-delay: 0s; }
+    .bubble-2 { width: 50px; height: 50px; top: 70%; left: 12%; animation-delay: 1s; }
+    .bubble-3 { width: 120px; height: 120px; top: 5%; right: 10%; opacity: 0.6; animation-delay: 2s; }
+    .bubble-4 { width: 40px; height: 40px; bottom: 15%; right: 20%; animation-delay: 1.5s; }
+    .bubble-5 { width: 65px; height: 65px; top: 40%; left: 3%; opacity: 0.5; animation-delay: 0.5s; }
+    .bubble-6 { width: 35px; height: 35px; top: 25%; right: 30%; opacity: 0.4; animation-delay: 2.5s; }
+    .bubble-7 { width: 90px; height: 90px; bottom: 10%; left: 25%; opacity: 0.3; animation-delay: 3s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .leaf {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, rgba(150,220,150,0.5), rgba(100,200,100,0.2));
+      border-radius: 0 60% 0 60%;
+      transform: rotate(45deg);
+      pointer-events: none;
+      box-shadow: 2px 2px 8px rgba(0,100,0,0.1);
+      animation: sway 5s ease-in-out infinite;
+    }
+    .leaf-1 { top: 20%; right: 5%; transform: rotate(30deg) scale(0.8); animation-delay: 0s; }
+    .leaf-2 { bottom: 25%; left: 8%; transform: rotate(120deg) scale(0.6); opacity: 0.7; animation-delay: 1s; }
+    .leaf-3 { top: 60%; right: 15%; transform: rotate(80deg) scale(0.5); opacity: 0.5; animation-delay: 2s; }
+
+    @keyframes sway {
+      0%, 100% { transform: rotate(45deg) translateX(0); }
+      50% { transform: rotate(50deg) translateX(5px); }
+    }
+
+    /* Glass card */
+    .player-card {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255,255,255,0.25);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.5);
+      box-shadow: 0 8px 32px rgba(0,100,150,0.15), inset 0 1px 0 rgba(255,255,255,0.6);
+      padding: 28px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      overflow: hidden;
+    }
+
+    .player-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 45%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 60%, transparent 100%);
+      border-radius: 24px 24px 0 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* Vinyl disc */
+    .vinyl-area {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      flex-shrink: 0;
+    }
+    .vinyl {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: 
+        repeating-radial-gradient(circle at center, 
+          #1a1a1a 0px, #1a1a1a 2px, 
+          #2a2a2a 3px, #2a2a2a 4px
+        );
+      box-shadow: 
+        0 4px 20px rgba(0,0,0,0.3),
+        0 0 0 4px rgba(255,255,255,0.1),
+        inset 0 0 30px rgba(0,0,0,0.5);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+    .vinyl.spinning {
+      animation: spin 2s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .vinyl-label {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .vinyl-label::after {
+      content: '';
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #1a1a1a;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
+    }
+    .vinyl-shine {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.05) 100%);
+      pointer-events: none;
+    }
+
+    #vizCanvas {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 260px;
+      height: 260px;
+      z-index: -1;
+      opacity: 0.7;
+    }
+
+    .track-info {
+      text-align: center;
+      z-index: 4;
+      width: 100%;
+    }
+    .track-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a3a4a;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+      margin: 0 0 4px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .track-artist {
+      font-size: 13px;
+      color: #3a6a7a;
+      text-shadow: 0 1px 1px rgba(255,255,255,0.6);
+      margin: 0;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      z-index: 4;
+    }
+    .btn-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .btn-glass {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 
+        0 4px 12px rgba(0,100,150,0.15),
+        inset 0 1px 2px rgba(255,255,255,0.9),
+        inset 0 -1px 2px rgba(0,80,120,0.1);
+      color: #1a4a5a;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-glass::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), transparent);
+      border-radius: 50% 50% 0 0;
+      pointer-events: none;
+    }
+    .btn-glass:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,100,150,0.2);
+    }
+    .btn-glass:active {
+      transform: translateY(0) scale(0.95);
+      box-shadow: 0 2px 8px rgba(0,100,150,0.15);
+    }
+    .btn-play {
+      width: 64px;
+      height: 64px;
+      font-size: 24px;
+      background: linear-gradient(180deg, rgba(100,220,180,0.7) 0%, rgba(80,200,220,0.5) 100%);
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .progress-container {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .time-text {
+      font-size: 11px;
+      color: #3a6a7a;
+      font-variant-numeric: tabular-nums;
+      min-width: 36px;
+      text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+      font-feature-settings: "tnum" 1;
+    }
+    .progress-track {
+      flex: 1;
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.4);
+      box-shadow: inset 0 1px 3px rgba(0,80,120,0.15);
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #4ecdc4, #44a08d);
+      box-shadow: 0 0 8px rgba(78,205,196,0.4);
+      transition: width 0.1s linear;
+    }
+
+    .file-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .file-input {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+    .file-btn {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px dashed rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.2);
+      color: #2a5a6a;
+      font-size: 13px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .file-btn:hover {
+      background: rgba(255,255,255,0.35);
+      border-color: rgba(255,255,255,0.9);
+    }
+
+    .drop-deco {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50% 50% 50% 5%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(180,230,255,0.4));
+      box-shadow: 2px 2px 6px rgba(0,100,150,0.1);
+      transform: rotate(-45deg);
+      pointer-events: none;
+      z-index: 3;
+    }
+    .drop-1 { top: 12px; right: 20px; }
+    .drop-2 { bottom: 80px; left: 16px; width: 14px; height: 14px; opacity: 0.7; }
+
+    @media (max-width: 480px) {
+      .frutiger-wrap { padding: 16px; }
+      .player-card { padding: 20px; max-width: 100%; }
+      .vinyl-area { width: 180px; height: 180px; }
+      .vinyl-label { width: 64px; height: 64px; }
+      #vizCanvas { width: 210px; height: 210px; }
+      .track-title { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frutiger-wrap">
+    <div class="bubble bubble-1"></div>
+    <div class="bubble bubble-2"></div>
+    <div class="bubble bubble-3"></div>
+    <div class="bubble bubble-4"></div>
+    <div class="bubble bubble-5"></div>
+    <div class="bubble bubble-6"></div>
+    <div class="bubble bubble-7"></div>
+    <div class="leaf leaf-1"></div>
+    <div class="leaf leaf-2"></div>
+    <div class="leaf leaf-3"></div>
+
+    <div class="player-card">
+      <div class="drop-deco drop-1"></div>
+      <div class="drop-deco drop-2"></div>
+
+      <div class="vinyl-area">
+        <canvas id="vizCanvas" width="260" height="260"></canvas>
+        <div class="vinyl" id="vinyl">
+          <div class="vinyl-label"></div>
+          <div class="vinyl-shine"></div>
+        </div>
+      </div>
+
+      <div class="track-info">
+        <p class="track-title" id="trackTitle">음악 파일을 선택하세요</p>
+        <p class="track-artist" id="trackArtist">Frutiger Aero Player</p>
+      </div>
+
+      <div class="controls">
+        <div class="progress-container">
+          <span class="time-text" id="curTime">0:00</span>
+          <div class="progress-track" id="progressTrack">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <span class="time-text" id="totTime">0:00</span>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-glass" id="btnPrev" title="Restart">⏮</button>
+          <button class="btn-glass btn-play" id="btnPlay" title="Play">▶</button>
+          <button class="btn-glass" id="btnStop" title="Stop">⏹</button>
+        </div>
+
+        <div class="file-wrap">
+          <input type="file" class="file-input" id="fileInput" accept="audio/*">
+          <div class="file-btn" id="fileLabel">🎵 음악 파일 선택 (클릭)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    const fileInput = document.getElementById('fileInput');
+    const fileLabel = document.getElementById('fileLabel');
+    const btnPlay = document.getElementById('btnPlay');
+    const btnStop = document.getElementById('btnStop');
+    const btnPrev = document.getElementById('btnPrev');
+    const vinyl = document.getElementById('vinyl');
+    const trackTitle = document.getElementById('trackTitle');
+    const trackArtist = document.getElementById('trackArtist');
+    const curTimeEl = document.getElementById('curTime');
+    const totTimeEl = document.getElementById('totTime');
+    const progressFill = document.getElementById('progressFill');
+    const progressTrack = document.getElementById('progressTrack');
+    const canvas = document.getElementById('vizCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let audio = null;
+    let audioCtx = null;
+    let analyser = null;
+    let source = null;
+    let dataArray = null;
+    let animationId = null;
+    let isPlaying = false;
+
+    function formatTime(s) {
+      if (!isFinite(s) || isNaN(s)) return '0:00';
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 128;
+        analyser.smoothingTimeConstant = 0.8;
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function setupVisualizer() {
+      if (!analyser) return;
+      const bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+
+      function draw() {
+        animationId = requestAnimationFrame(draw);
+        analyser.getByteFrequencyData(dataArray);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const radius = 110;
+        const bars = dataArray.length;
+
+        for (let i = 0; i < bars; i++) {
+          const value = dataArray[i];
+          const barHeight = (value / 255) * 50;
+          const angle = (i / bars) * Math.PI * 2;
+          const x1 = cx + Math.cos(angle) * radius;
+          const y1 = cy + Math.sin(angle) * radius;
+          const x2 = cx + Math.cos(angle) * (radius + barHeight);
+          const y2 = cy + Math.sin(angle) * (radius + barHeight);
+
+          const hue = 160 + (i / bars) * 60;
+          ctx.strokeStyle = `hsla(${hue}, 70%, 60%, ${0.3 + (value/255)*0.5})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+        }
+      }
+      draw();
+    }
+
+    function loadFile(file) {
+      if (audio) {
+        audio.pause();
+        audio.src = '';
+      }
+      const url = URL.createObjectURL(file);
+      audio = new Audio(url);
+      audio.crossOrigin = 'anonymous';
+
+      initAudioContext();
+      if (source) source.disconnect();
+      source = audioCtx.createMediaElementSource(audio);
+      source.connect(analyser);
+      analyser.connect(audioCtx.destination);
+
+      trackTitle.textContent = file.name.replace(/\.[^/.]+$/, '');
+      trackArtist.textContent = 'Local File';
+      fileLabel.textContent = '🎵 ' + file.name;
+
+      audio.addEventListener('loadedmetadata', () => {
+        totTimeEl.textContent = formatTime(audio.duration);
+      });
+      audio.addEventListener('timeupdate', () => {
+        curTimeEl.textContent = formatTime(audio.currentTime);
+        if (audio.duration) {
+          progressFill.style.width = (audio.currentTime / audio.duration * 100) + '%';
+        }
+      });
+      audio.addEventListener('ended', () => {
+        isPlaying = false;
+        vinyl.classList.remove('spinning');
+        btnPlay.textContent = '▶';
+        progressFill.style.width = '0%';
+        curTimeEl.textContent = '0:00';
+      });
+
+      if (!animationId) setupVisualizer();
+    }
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files[0]) loadFile(e.target.files[0]);
+    });
+
+    btnPlay.addEventListener('click', () => {
+      if (!audio) {
+        fileInput.click();
+        return;
+      }
+      initAudioContext();
+      if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+        vinyl.classList.remove('spinning');
+        btnPlay.textContent = '▶';
+      } else {
+        audio.play();
+        isPlaying = true;
+        vinyl.classList.add('spinning');
+        btnPlay.textContent = '⏸';
+      }
+    });
+
+    btnStop.addEventListener('click', () => {
+      if (!audio) return;
+      audio.pause();
+      audio.currentTime = 0;
+      isPlaying = false;
+      vinyl.classList.remove('spinning');
+      btnPlay.textContent = '▶';
+      progressFill.style.width = '0%';
+      curTimeEl.textContent = '0:00';
+    });
+
+    btnPrev.addEventListener('click', () => {
+      if (!audio) return;
+      audio.currentTime = 0;
+      if (isPlaying) {
+        audio.play();
+        vinyl.classList.add('spinning');
+      }
+    });
+
+    progressTrack.addEventListener('click', (e) => {
+      if (!audio || !audio.duration) return;
+      const rect = progressTrack.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      audio.currentTime = pct * audio.duration;
+    });
+
+    function idleDraw() {
+      if (isPlaying) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const radius = 110;
+      const time = Date.now() / 1000;
+      const bars = 32;
+      for (let i = 0; i < bars; i++) {
+        const angle = (i / bars) * Math.PI * 2;
+        const wave = Math.sin(time * 2 + i * 0.3) * 8 + 8;
+        const x1 = cx + Math.cos(angle) * radius;
+        const y1 = cy + Math.sin(angle) * radius;
+        const x2 = cx + Math.cos(angle) * (radius + wave);
+        const y2 = cy + Math.sin(angle) * (radius + wave);
+        ctx.strokeStyle = `hsla(170, 50%, 70%, 0.25)`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+      if (!isPlaying) requestAnimationFrame(idleDraw);
+    }
+    idleDraw();
+  })();
+  </script>
+</body>
+</html>
